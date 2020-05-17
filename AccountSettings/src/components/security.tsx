@@ -1,5 +1,5 @@
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
-import React, { Component, Fragment } from 'react';
+import { FormattedMessage, formatMessage } from 'umi';
+import React, { Component } from 'react';
 
 import { List } from 'antd';
 
@@ -29,10 +29,10 @@ class SecurityView extends Component {
     {
       title: formatMessage({ id: 'BLOCK_NAME.security.password' }, {}),
       description: (
-        <Fragment>
+        <>
           {formatMessage({ id: 'BLOCK_NAME.security.password-description' })}：
           {passwordStrength.strong}
-        </Fragment>
+        </>
       ),
       actions: [
         <a key="Modify">
@@ -87,17 +87,17 @@ class SecurityView extends Component {
   render() {
     const data = this.getData();
     return (
-      <Fragment>
+      <>
         <List<Unpacked<typeof data>>
           itemLayout="horizontal"
           dataSource={data}
-          renderItem={item => (
+          renderItem={(item) => (
             <List.Item actions={item.actions}>
               <List.Item.Meta title={item.title} description={item.description} />
             </List.Item>
           )}
         />
-      </Fragment>
+      </>
     );
   }
 }

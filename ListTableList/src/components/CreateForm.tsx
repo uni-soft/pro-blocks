@@ -1,24 +1,22 @@
-import { Form, Input, Modal } from 'antd';
-
-import { FormComponentProps } from 'antd/es/form';
 import React from 'react';
+import { Form, Input, Modal } from 'antd';
 
 const FormItem = Form.Item;
 
-interface CreateFormProps extends FormComponentProps {
+interface CreateFormProps {
   modalVisible: boolean;
   onSubmit: (fieldsValue: { desc: string }) => void;
   onCancel: () => void;
 }
 
-const CreateForm: React.FC<CreateFormProps> = props => {
-  const { modalVisible, form, onSubmit: handleAdd, onCancel } = props;
-  const okHandle = () => {
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      form.resetFields();
-      handleAdd(fieldsValue);
-    });
+const CreateForm: React.FC<CreateFormProps> = (props) => {
+  const [form] = Form.useForm();
+
+  const { modalVisible, onSubmit: handleAdd, onCancel } = props;
+  const okHandle = async () => {
+    const fieldsValue = await form.validateFields();
+    form.resetFields();
+    handleAdd(fieldsValue);
   };
   return (
     <Modal
@@ -28,13 +26,19 @@ const CreateForm: React.FC<CreateFormProps> = props => {
       onOk={okHandle}
       onCancel={() => onCancel()}
     >
-      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="描述">
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }],
-        })(<Input placeholder="请输入" />)}
-      </FormItem>
+      <Form form={form}>
+        <FormItem
+          labelCol={{ span: 5 }}
+          wrapperCol={{ span: 15 }}
+          label="描述"
+          name="desc"
+          rules={[{ required: true, message: '请输入至少五个字符的规则描述！', min: 5 }]}
+        >
+          <Input placeholder="请输入" />
+        </FormItem>
+      </Form>
     </Modal>
   );
 };
 
-export default Form.create<CreateFormProps>()(CreateForm);
+export default CreateForm;

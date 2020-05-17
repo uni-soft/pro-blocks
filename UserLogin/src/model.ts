@@ -1,19 +1,33 @@
-import { AnyAction, Reducer } from 'redux';
-import { EffectsCommandMap } from 'dva';
-import { routerRedux } from 'dva/router';
+import { Effect, history, Reducer } from 'umi';
+import { message } from 'antd';
 import { fakeAccountLogin, getFakeCaptcha } from './service';
-import { getPageQuery, setAuthority } from './utils/utils';
+import { parse } from 'qs';
+
+export function getPageQuery() {
+  return parse(window.location.href.split('?')[1]);
+}
+
+export function setAuthority(authority: string | string[]) {
+  const proAuthority = typeof authority === 'string' ? [authority] : authority;
+  localStorage.setItem('antd-pro-authority', JSON.stringify(proAuthority));
+  // hard code
+  // reload Authorized component
+  try {
+    if ((window as any).reloadAuthorized) {
+      (window as any).reloadAuthorized();
+    }
+  } catch (error) {
+    // do not need do anything
+  }
+
+  return authority;
+}
 
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
   currentAuthority?: 'user' | 'guest' | 'admin';
 }
-
-export type Effect = (
-  action: AnyAction,
-  effects: EffectsCommandMap & { select: <T>(func: (state: StateType) => T) => T },
-) => void;
 
 export interface ModelType {
   namespace: string;
@@ -43,6 +57,7 @@ const Model: ModelType = {
       });
       // Login successfully
       if (response.status === 'ok') {
+        message.success('登录成功！');
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params as { redirect: string };
@@ -58,7 +73,7 @@ const Model: ModelType = {
             return;
           }
         }
-        yield put(routerRedux.replace(redirect || '/'));
+        history.replace(redirect || '/');
       }
     },
 

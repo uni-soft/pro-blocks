@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
 import { Select, Spin } from 'antd';
-
-import { Dispatch } from 'redux';
-import { connect } from 'dva';
+import { LabeledValue } from 'antd/es/select';
+import { connect, Dispatch } from 'umi';
 import { GeographicItemType } from '../data.d';
 import styles from './GeographicView.less';
 
 const { Option } = Select;
 
-interface SelectItem {
-  label: string;
-  key: string;
-}
-const nullSelectItem: SelectItem = {
+const nullSelectItem: LabeledValue = {
   label: '',
+  value: '',
   key: '',
 };
 
@@ -22,32 +18,13 @@ interface GeographicViewProps {
   province?: GeographicItemType[];
   city?: GeographicItemType[];
   value?: {
-    province: SelectItem;
-    city: SelectItem;
+    province: LabeledValue;
+    city: LabeledValue;
   };
   loading?: boolean;
-  onChange?: (value: { province: SelectItem; city: SelectItem }) => void;
+  onChange?: (value: { province: LabeledValue; city: LabeledValue }) => void;
 }
 
-@connect(
-  ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading,
-  }: {
-    BLOCK_NAME_CAMEL_CASE: {
-      province: GeographicItemType[];
-      city: GeographicItemType[];
-    };
-    loading: any;
-  }) => {
-    const { province, city } = BLOCK_NAME_CAMEL_CASE;
-    return {
-      province,
-      city,
-      loading: loading.models.BLOCK_NAME_CAMEL_CASE,
-    };
-  },
-)
 class GeographicView extends Component<GeographicViewProps> {
   componentDidMount = () => {
     const { dispatch } = this.props;
@@ -95,14 +72,14 @@ class GeographicView extends Component<GeographicViewProps> {
         </Option>
       );
     }
-    return list.map(item => (
+    return list.map((item) => (
       <Option key={item.id} value={item.id}>
         {item.name}
       </Option>
     ));
   };
 
-  selectProvinceItem = (item: SelectItem) => {
+  selectProvinceItem = (item: LabeledValue) => {
     const { dispatch, onChange } = this.props;
 
     if (dispatch) {
@@ -119,7 +96,7 @@ class GeographicView extends Component<GeographicViewProps> {
     }
   };
 
-  selectCityItem = (item: SelectItem) => {
+  selectCityItem = (item: LabeledValue) => {
     const { value, onChange } = this.props;
     if (value && onChange) {
       onChange({
@@ -147,6 +124,7 @@ class GeographicView extends Component<GeographicViewProps> {
   render() {
     const { province, city } = this.conversionObject();
     const { loading } = this.props;
+
     return (
       <Spin spinning={loading} wrapperClassName={styles.row}>
         <Select
@@ -172,4 +150,22 @@ class GeographicView extends Component<GeographicViewProps> {
   }
 }
 
-export default GeographicView;
+export default connect(
+  ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading,
+  }: {
+    BLOCK_NAME_CAMEL_CASE: {
+      province: GeographicItemType[];
+      city: GeographicItemType[];
+    };
+    loading: any;
+  }) => {
+    const { province, city } = BLOCK_NAME_CAMEL_CASE;
+    return {
+      province,
+      city,
+      loading: loading.models.BLOCK_NAME_CAMEL_CASE,
+    };
+  },
+)(GeographicView);

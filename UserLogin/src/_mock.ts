@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response } from 'express';
 
 function getFakeCaptcha(req: Request, res: Response) {
@@ -20,6 +21,14 @@ export default {
         status: 'ok',
         type,
         currentAuthority: 'user',
+      });
+      return;
+    }
+    if (type === 'mobile') {
+      res.send({
+        status: 'ok',
+        type,
+        currentAuthority: 'admin',
       });
       return;
     }

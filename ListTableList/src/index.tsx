@@ -1,15 +1,12 @@
-import { Badge, Button, Divider, Dropdown, Form, Icon, Menu, message } from 'antd';
-import React, { useState } from 'react';
-
-import { FormComponentProps } from 'antd/es/form';
+import { DownOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Divider, Dropdown, Menu, message } from 'antd';
+import React, { useState, useRef } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import ProTable, { ProColumns, UseFetchDataAction } from '@ant-design/pro-table';
+import ProTable, { ProColumns, ActionType } from '@ant-design/pro-table';
 import CreateForm from './components/CreateForm';
 import UpdateForm, { FormValueType } from './components/UpdateForm';
 import { TableListItem } from './data.d';
 import { queryRule, updateRule, addRule, removeRule } from './service';
-
-interface TableListProps extends FormComponentProps {}
 
 /**
  * 添加节点
@@ -63,7 +60,7 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
   if (!selectedRows) return true;
   try {
     await removeRule({
-      key: selectedRows.map(row => row.key),
+      key: selectedRows.map((row) => row.key),
     });
     hide();
     message.success('删除成功，即将刷新');
@@ -75,12 +72,11 @@ const handleRemove = async (selectedRows: TableListItem[]) => {
   }
 };
 
-const TableList: React.FC<TableListProps> = () => {
+const TableList: React.FC<{}> = () => {
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [updateModalVisible, handleUpdateModalVisible] = useState<boolean>(false);
   const [stepFormValues, setStepFormValues] = useState({});
-
-  const [actionRef, setActionRef] = useState<UseFetchDataAction<{ data: TableListItem[] }>>();
+  const actionRef = useRef<ActionType>();
   const columns: ProColumns<TableListItem>[] = [
     {
       title: '规则名称',
@@ -137,17 +133,17 @@ const TableList: React.FC<TableListProps> = () => {
     <PageHeaderWrapper>
       <ProTable<TableListItem>
         headerTitle="查询表格"
-        onInit={setActionRef}
+        actionRef={actionRef}
         rowKey="key"
         toolBarRender={(action, { selectedRows }) => [
-          <Button icon="plus" type="primary" onClick={() => handleModalVisible(true)}>
+          <Button icon={<PlusOutlined />} type="primary" onClick={() => handleModalVisible(true)}>
             新建
           </Button>,
           selectedRows && selectedRows.length > 0 && (
             <Dropdown
               overlay={
                 <Menu
-                  onClick={async e => {
+                  onClick={async (e) => {
                     if (e.key === 'remove') {
                       await handleRemove(selectedRows);
                       action.reload();
@@ -161,12 +157,12 @@ const TableList: React.FC<TableListProps> = () => {
               }
             >
               <Button>
-                批量操作 <Icon type="down" />
+                批量操作 <DownOutlined />
               </Button>
             </Dropdown>
           ),
         ]}
-        tableAlertRender={(selectedRowKeys, selectedRows) => (
+        tableAlertRender={({ selectedRowKeys, selectedRows }) => (
           <div>
             已选择 <a style={{ fontWeight: 600 }}>{selectedRowKeys.length}</a> 项&nbsp;&nbsp;
             <span>
@@ -174,15 +170,18 @@ const TableList: React.FC<TableListProps> = () => {
             </span>
           </div>
         )}
-        request={params => queryRule(params)}
+        request={(params) => queryRule(params)}
         columns={columns}
+        rowSelection={{}}
       />
       <CreateForm
-        onSubmit={async value => {
+        onSubmit={async (value) => {
           const success = await handleAdd(value);
           if (success) {
             handleModalVisible(false);
-            actionRef!.reload();
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
           }
         }}
         onCancel={() => handleModalVisible(false)}
@@ -190,12 +189,14 @@ const TableList: React.FC<TableListProps> = () => {
       />
       {stepFormValues && Object.keys(stepFormValues).length ? (
         <UpdateForm
-          onSubmit={async value => {
+          onSubmit={async (value) => {
             const success = await handleUpdate(value);
             if (success) {
               handleModalVisible(false);
               setStepFormValues({});
-              actionRef!.reload();
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
             }
           }}
           onCancel={() => {
@@ -210,4 +211,4 @@ const TableList: React.FC<TableListProps> = () => {
   );
 };
 
-export default Form.create<TableListProps>()(TableList);
+export default TableList;

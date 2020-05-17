@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
-import { FormattedMessage } from 'umi-plugin-react/locale';
+import { FormattedMessage, Dispatch, connect } from 'umi';
 import { GridContent } from '@ant-design/pro-layout';
 import { Menu } from 'antd';
-import { connect } from 'dva';
 import BaseView from './components/base';
 import BindingView from './components/binding';
 import { CurrentUser } from './data.d';
@@ -15,7 +13,7 @@ import styles from './style.less';
 const { Item } = Menu;
 
 interface PAGE_NAME_UPPER_CAMEL_CASEProps {
-  dispatch: Dispatch<any>;
+  dispatch: Dispatch;
   currentUser: CurrentUser;
 }
 
@@ -27,9 +25,7 @@ interface PAGE_NAME_UPPER_CAMEL_CASEState {
   };
   selectKey: PAGE_NAME_UPPER_CAMEL_CASEStateKeys;
 }
-@connect(({ BLOCK_NAME_CAMEL_CASE }: { BLOCK_NAME_CAMEL_CASE: { currentUser: CurrentUser } }) => ({
-  currentUser: BLOCK_NAME_CAMEL_CASE.currentUser,
-}))
+
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   PAGE_NAME_UPPER_CAMEL_CASEProps,
   PAGE_NAME_UPPER_CAMEL_CASEState
@@ -75,7 +71,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
 
   getMenu = () => {
     const { menuMap } = this.state;
-    return Object.keys(menuMap).map(item => <Item key={item}>{menuMap[item]}</Item>);
+    return Object.keys(menuMap).map((item) => <Item key={item}>{menuMap[item]}</Item>);
   };
 
   getRightTitle = () => {
@@ -139,7 +135,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
       <GridContent>
         <div
           className={styles.main}
-          ref={ref => {
+          ref={(ref) => {
             if (ref) {
               this.main = ref;
             }
@@ -164,4 +160,8 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({ BLOCK_NAME_CAMEL_CASE }: { BLOCK_NAME_CAMEL_CASE: { currentUser: CurrentUser } }) => ({
+    currentUser: BLOCK_NAME_CAMEL_CASE.currentUser,
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);

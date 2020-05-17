@@ -1,9 +1,9 @@
-import { Button, Card, Icon, List, Typography } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { Button, Card, List, Typography } from 'antd';
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
+import { connect, Dispatch } from 'umi';
 import { StateType } from './model';
 import { CardListItemDataType } from './data.d';
 import styles from './style.less';
@@ -21,20 +21,6 @@ interface PAGE_NAME_UPPER_CAMEL_CASEState {
   current?: Partial<CardListItemDataType>;
 }
 
-@connect(
-  ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading,
-  }: {
-    BLOCK_NAME_CAMEL_CASE: StateType;
-    loading: {
-      models: { [key: string]: boolean };
-    };
-  }) => ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading: loading.models.BLOCK_NAME_CAMEL_CASE,
-  }),
-)
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   PAGE_NAME_UPPER_CAMEL_CASEProps,
   PAGE_NAME_UPPER_CAMEL_CASEState
@@ -95,7 +81,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
             loading={loading}
             grid={{ gutter: 24, lg: 3, md: 2, sm: 1, xs: 1 }}
             dataSource={[nullData, ...list]}
-            renderItem={item => {
+            renderItem={(item) => {
               if (item && item.id) {
                 return (
                   <List.Item key={item.id}>
@@ -120,7 +106,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
               return (
                 <List.Item>
                   <Button type="dashed" className={styles.newButton}>
-                    <Icon type="plus" /> 新增产品
+                    <PlusOutlined /> 新增产品
                   </Button>
                 </List.Item>
               );
@@ -132,4 +118,17 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading,
+  }: {
+    BLOCK_NAME_CAMEL_CASE: StateType;
+    loading: {
+      models: { [key: string]: boolean };
+    };
+  }) => ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading: loading.models.BLOCK_NAME_CAMEL_CASE,
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);

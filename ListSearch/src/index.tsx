@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 
 import { Input } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
-import router from 'umi/router';
+import { history } from 'umi';
 
 interface PAGE_NAME_UPPER_CAMEL_CASEProps {
   match: {
@@ -15,20 +14,19 @@ interface PAGE_NAME_UPPER_CAMEL_CASEProps {
   };
 }
 
-@connect()
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEProps> {
   handleTabChange = (key: string) => {
     const { match } = this.props;
     const url = match.url === '/' ? '' : match.url;
     switch (key) {
       case 'articles':
-        router.push(`${url}/articles`);
+        history.push(`${url}/articles`);
         break;
       case 'applications':
-        router.push(`${url}/applications`);
+        history.push(`${url}/applications`);
         break;
       case 'projects':
-        router.push(`${url}/projects`);
+        history.push(`${url}/projects`);
         break;
       default:
         break;
@@ -36,6 +34,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
   };
 
   handleFormSubmit = (value: string) => {
+    // eslint-disable-next-line no-console
     console.log(value);
   };
 

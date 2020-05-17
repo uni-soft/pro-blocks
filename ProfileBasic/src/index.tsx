@@ -1,9 +1,8 @@
 import { Badge, Card, Descriptions, Divider, Table } from 'antd';
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
+import { connect, Dispatch } from 'umi';
 import { BasicProfileDataType } from './data.d';
 import styles from './style.less';
 
@@ -51,20 +50,6 @@ interface PAGE_NAME_UPPER_CAMEL_CASEState {
   visible: boolean;
 }
 
-@connect(
-  ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading,
-  }: {
-    BLOCK_NAME_CAMEL_CASE: BasicProfileDataType;
-    loading: {
-      effects: { [key: string]: boolean };
-    };
-  }) => ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchBasic'],
-  }),
-)
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   PAGE_NAME_UPPER_CAMEL_CASEProps,
   PAGE_NAME_UPPER_CAMEL_CASEState
@@ -83,7 +68,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
     if (basicGoods.length) {
       let num = 0;
       let amount = 0;
-      basicGoods.forEach(item => {
+      basicGoods.forEach((item) => {
         num += Number(item.num);
         amount += Number(item.amount);
       });
@@ -208,4 +193,17 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading,
+  }: {
+    BLOCK_NAME_CAMEL_CASE: BasicProfileDataType;
+    loading: {
+      effects: { [key: string]: boolean };
+    };
+  }) => ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchBasic'],
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);

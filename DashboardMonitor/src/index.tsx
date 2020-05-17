@@ -1,13 +1,11 @@
-import { Card, Col, Row, Statistic, Tooltip } from 'antd';
-import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
+import { Card, Col, Row, Statistic } from 'antd';
+import { FormattedMessage, connect, formatMessage, Dispatch } from 'umi';
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
 import { GridContent } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import numeral from 'numeral';
 import { StateType } from './model';
-import { Pie, WaterWave, Gauge, TagCloud } from './components/Charts';
+import { Pie, WaterWave, Gauge, TagCloud, Map } from './components/Charts';
 import ActiveChart from './components/ActiveChart';
 import styles from './style.less';
 
@@ -21,20 +19,6 @@ interface PAGE_NAME_UPPER_CAMEL_CASEProps {
   loading: boolean;
 }
 
-@connect(
-  ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading,
-  }: {
-    BLOCK_NAME_CAMEL_CASE: StateType;
-    loading: {
-      models: { [key: string]: boolean };
-    };
-  }) => ({
-    BLOCK_NAME_CAMEL_CASE,
-    loading: loading.models.BLOCK_NAME_CAMEL_CASE,
-  }),
-)
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEProps> {
   componentDidMount() {
     const { dispatch } = this.props;
@@ -110,19 +94,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
                   </Col>
                 </Row>
                 <div className={styles.mapChart}>
-                  <Tooltip
-                    title={
-                      <FormattedMessage
-                        id="BLOCK_NAME.monitor.waiting-for-implementation"
-                        defaultMessage="Waiting for implementation"
-                      />
-                    }
-                  >
-                    <img
-                      src="https://gw.alipayobjects.com/zos/rmsportal/HBWnDEUXCnGnGrRfrpKa.png"
-                      alt="map"
-                    />
-                  </Tooltip>
+                  <Map />
                 </div>
               </Card>
             </Col>
@@ -269,4 +241,17 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading,
+  }: {
+    BLOCK_NAME_CAMEL_CASE: StateType;
+    loading: {
+      models: { [key: string]: boolean };
+    };
+  }) => ({
+    BLOCK_NAME_CAMEL_CASE,
+    loading: loading.models.BLOCK_NAME_CAMEL_CASE,
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);

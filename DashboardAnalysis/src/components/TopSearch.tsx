@@ -1,5 +1,6 @@
-import { Card, Col, Icon, Row, Table, Tooltip } from 'antd';
-import { FormattedMessage } from 'umi-plugin-react/locale';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import { Card, Col, Row, Table, Tooltip } from 'antd';
+import { FormattedMessage } from 'umi';
 import React from 'react';
 import numeral from 'numeral';
 import { SearchDataType, VisitDataType } from '../data.d';
@@ -82,7 +83,7 @@ const TopSearch = ({
                   <FormattedMessage id="BLOCK_NAME.analysis.introduce" defaultMessage="introduce" />
                 }
               >
-                <Icon style={{ marginLeft: 8 }} type="info-circle-o" />
+                <InfoCircleOutlined style={{ marginLeft: 8 }} />
               </Tooltip>
             </span>
           }
@@ -106,7 +107,7 @@ const TopSearch = ({
                   <FormattedMessage id="BLOCK_NAME.analysis.introduce" defaultMessage="introduce" />
                 }
               >
-                <Icon style={{ marginLeft: 8 }} type="info-circle-o" />
+                <InfoCircleOutlined style={{ marginLeft: 8 }} />
               </Tooltip>
             </span>
           }
@@ -119,7 +120,7 @@ const TopSearch = ({
       </Col>
     </Row>
     <Table<any>
-      rowKey={record => record.index}
+      rowKey={(record) => record.index}
       size="small"
       columns={columns}
       dataSource={searchData}

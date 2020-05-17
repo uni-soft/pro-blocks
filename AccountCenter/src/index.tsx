@@ -1,11 +1,9 @@
-import { Avatar, Card, Col, Divider, Icon, Input, Row, Tag } from 'antd';
-import React, { PureComponent } from 'react';
-
-import { Dispatch } from 'redux';
+import { PlusOutlined, HomeOutlined, ContactsOutlined, ClusterOutlined } from '@ant-design/icons';
+import { Avatar, Card, Col, Divider, Input, Row, Tag } from 'antd';
+import React, { Component, useState, useRef } from 'react';
 import { GridContent } from '@ant-design/pro-layout';
-import Link from 'umi/link';
+import { Link, connect, Dispatch } from 'umi';
 import { RouteChildrenProps } from 'react-router';
-import { connect } from 'dva';
 import { ModalState } from './model';
 import Projects from './components/Projects';
 import Articles from './components/Articles';
@@ -42,29 +40,69 @@ const operationTabList = [
 
 interface PAGE_NAME_UPPER_CAMEL_CASEProps extends RouteChildrenProps {
   dispatch: Dispatch<any>;
-  currentUser: CurrentUser;
+  currentUser: Partial<CurrentUser>;
   currentUserLoading: boolean;
 }
 interface PAGE_NAME_UPPER_CAMEL_CASEState {
-  newTags: TagType[];
-  tabKey: 'articles' | 'applications' | 'projects';
-  inputVisible: boolean;
-  inputValue: string;
+  tabKey?: 'articles' | 'applications' | 'projects';
 }
 
-@connect(
-  ({
-    loading,
-    BLOCK_NAME_CAMEL_CASE,
-  }: {
-    loading: { effects: { [key: string]: boolean } };
-    BLOCK_NAME_CAMEL_CASE: ModalState;
-  }) => ({
-    currentUser: BLOCK_NAME_CAMEL_CASE.currentUser,
-    currentUserLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchCurrent'],
-  }),
-)
-class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
+const TagList: React.FC<{ tags: CurrentUser['tags'] }> = ({ tags }) => {
+  const ref = useRef<Input | null>(null);
+  const [newTags, setNewTags] = useState<TagType[]>([]);
+  const [inputVisible, setInputVisible] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>('');
+
+  const showInput = () => {
+    setInputVisible(true);
+    if (ref.current) {
+      // eslint-disable-next-line no-unused-expressions
+      ref.current?.focus();
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleInputConfirm = () => {
+    let tempsTags = [...newTags];
+    if (inputValue && tempsTags.filter((tag) => tag.label === inputValue).length === 0) {
+      tempsTags = [...tempsTags, { key: `new-${tempsTags.length}`, label: inputValue }];
+    }
+    setNewTags(tempsTags);
+    setInputVisible(false);
+    setInputValue('');
+  };
+
+  return (
+    <div className={styles.tags}>
+      <div className={styles.tagsTitle}>标签</div>
+      {(tags || []).concat(newTags).map((item) => (
+        <Tag key={item.key}>{item.label}</Tag>
+      ))}
+      {inputVisible && (
+        <Input
+          ref={ref}
+          type="text"
+          size="small"
+          style={{ width: 78 }}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleInputConfirm}
+          onPressEnter={handleInputConfirm}
+        />
+      )}
+      {!inputVisible && (
+        <Tag onClick={showInput} style={{ borderStyle: 'dashed' }}>
+          <PlusOutlined />
+        </Tag>
+      )}
+    </div>
+  );
+};
+
+class PAGE_NAME_UPPER_CAMEL_CASE extends Component<
   PAGE_NAME_UPPER_CAMEL_CASEProps,
   PAGE_NAME_UPPER_CAMEL_CASEState
 > {
@@ -87,9 +125,6 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
   // }
 
   state: PAGE_NAME_UPPER_CAMEL_CASEState = {
-    newTags: [],
-    inputVisible: false,
-    inputValue: '',
     tabKey: 'articles',
   };
 
@@ -114,32 +149,6 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
     });
   };
 
-  showInput = () => {
-    this.setState({ inputVisible: true }, () => this.input && this.input.focus());
-  };
-
-  saveInputRef = (input: Input | null) => {
-    this.input = input;
-  };
-
-  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ inputValue: e.target.value });
-  };
-
-  handleInputConfirm = () => {
-    const { state } = this;
-    const { inputValue } = state;
-    let { newTags } = state;
-    if (inputValue && newTags.filter(tag => tag.label === inputValue).length === 0) {
-      newTags = [...newTags, { key: `new-${newTags.length}`, label: inputValue }];
-    }
-    this.setState({
-      newTags,
-      inputVisible: false,
-      inputValue: '',
-    });
-  };
-
   renderChildrenByTabKey = (tabKey: PAGE_NAME_UPPER_CAMEL_CASEState['tabKey']) => {
     if (tabKey === 'projects') {
       return <Projects />;
@@ -153,9 +162,47 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
     return null;
   };
 
+  renderUserInfo = (currentUser: Partial<CurrentUser>) => (
+    <div className={styles.detail}>
+      <p>
+        <ContactsOutlined
+          style={{
+            marginRight: 8,
+          }}
+        />
+        {currentUser.title}
+      </p>
+      <p>
+        <ClusterOutlined
+          style={{
+            marginRight: 8,
+          }}
+        />
+        {currentUser.group}
+      </p>
+      <p>
+        <HomeOutlined
+          style={{
+            marginRight: 8,
+          }}
+        />
+        {(currentUser.geographic || { province: { label: '' } }).province.label}
+        {
+          (
+            currentUser.geographic || {
+              city: {
+                label: '',
+              },
+            }
+          ).city.label
+        }
+      </p>
+    </div>
+  );
+
   render() {
-    const { newTags, inputVisible, inputValue, tabKey } = this.state;
-    const { currentUser, currentUserLoading } = this.props;
+    const { tabKey } = this.state;
+    const { currentUser = {}, currentUserLoading } = this.props;
     const dataLoading = currentUserLoading || !(currentUser && Object.keys(currentUser).length);
     return (
       <GridContent>
@@ -169,54 +216,15 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
                     <div className={styles.name}>{currentUser.name}</div>
                     <div>{currentUser.signature}</div>
                   </div>
-                  <div className={styles.detail}>
-                    <p>
-                      <i className={styles.title} />
-                      {currentUser.title}
-                    </p>
-                    <p>
-                      <i className={styles.group} />
-                      {currentUser.group}
-                    </p>
-                    <p>
-                      <i className={styles.address} />
-                      {currentUser.geographic.province.label}
-                      {currentUser.geographic.city.label}
-                    </p>
-                  </div>
+                  {this.renderUserInfo(currentUser)}
                   <Divider dashed />
-                  <div className={styles.tags}>
-                    <div className={styles.tagsTitle}>标签</div>
-                    {currentUser.tags.concat(newTags).map(item => (
-                      <Tag key={item.key}>{item.label}</Tag>
-                    ))}
-                    {inputVisible && (
-                      <Input
-                        ref={ref => this.saveInputRef(ref)}
-                        type="text"
-                        size="small"
-                        style={{ width: 78 }}
-                        value={inputValue}
-                        onChange={this.handleInputChange}
-                        onBlur={this.handleInputConfirm}
-                        onPressEnter={this.handleInputConfirm}
-                      />
-                    )}
-                    {!inputVisible && (
-                      <Tag
-                        onClick={this.showInput}
-                        style={{ background: '#fff', borderStyle: 'dashed' }}
-                      >
-                        <Icon type="plus" />
-                      </Tag>
-                    )}
-                  </div>
+                  <TagList tags={currentUser.tags || []} />
                   <Divider style={{ marginTop: 16 }} dashed />
                   <div className={styles.team}>
                     <div className={styles.teamTitle}>团队</div>
                     <Row gutter={36}>
                       {currentUser.notice &&
-                        currentUser.notice.map(item => (
+                        currentUser.notice.map((item) => (
                           <Col key={item.id} lg={24} xl={12}>
                             <Link to={item.href}>
                               <Avatar size="small" src={item.logo} />
@@ -247,4 +255,15 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends PureComponent<
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({
+    loading,
+    BLOCK_NAME_CAMEL_CASE,
+  }: {
+    loading: { effects: { [key: string]: boolean } };
+    BLOCK_NAME_CAMEL_CASE: ModalState;
+  }) => ({
+    currentUser: BLOCK_NAME_CAMEL_CASE.currentUser,
+    currentUserLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchCurrent'],
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);

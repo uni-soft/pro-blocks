@@ -1,10 +1,8 @@
 import { Avatar, Card, Col, List, Skeleton, Row, Statistic } from 'antd';
 import React, { Component } from 'react';
 
-import { Dispatch } from 'redux';
-import Link from 'umi/link';
+import { Link, Dispatch, connect } from 'umi';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect } from 'dva';
 import moment from 'moment';
 import Radar from './components/Radar';
 import { ModalState } from './model';
@@ -40,7 +38,7 @@ const links = [
 ];
 
 interface PAGE_NAME_UPPER_CAMEL_CASEProps {
-  currentUser: CurrentUser;
+  currentUser?: CurrentUser;
   projectNotice: NoticeType[];
   activities: ActivitiesType[];
   radarData: RadarDataType[];
@@ -88,23 +86,6 @@ const ExtraContent: React.FC<{}> = () => (
   </div>
 );
 
-@connect(
-  ({
-    BLOCK_NAME_CAMEL_CASE: { currentUser, projectNotice, activities, radarData },
-    loading,
-  }: {
-    BLOCK_NAME_CAMEL_CASE: ModalState;
-    loading: { effects: any };
-  }) => ({
-    currentUser,
-    projectNotice,
-    activities,
-    radarData,
-    currentUserLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchUserCurrent'],
-    projectLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchProjectNotice'],
-    activitiesLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchActivitiesList'],
-  }),
-)
 class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEProps> {
   componentDidMount() {
     const { dispatch } = this.props;
@@ -121,7 +102,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
   }
 
   renderActivities = (item: ActivitiesType) => {
-    const events = item.template.split(/@\{([^{}]*)\}/gi).map(key => {
+    const events = item.template.split(/@\{([^{}]*)\}/gi).map((key) => {
       if (item[key]) {
         return (
           <a href={item[key].link} key={item[key].name}>
@@ -162,6 +143,9 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
       radarData,
     } = this.props;
 
+    if (!currentUser || !currentUser.userid) {
+      return null;
+    }
     return (
       <PageHeaderWrapper
         content={<PageHeaderContent currentUser={currentUser} />}
@@ -178,7 +162,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
               loading={projectLoading}
               bodyStyle={{ padding: 0 }}
             >
-              {projectNotice.map(item => (
+              {projectNotice.map((item) => (
                 <Card.Grid className={styles.projectGrid} key={item.id}>
                   <Card bodyStyle={{ padding: 0 }} bordered={false}>
                     <Card.Meta
@@ -211,7 +195,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
             >
               <List<ActivitiesType>
                 loading={activitiesLoading}
-                renderItem={item => this.renderActivities(item)}
+                renderItem={(item) => this.renderActivities(item)}
                 dataSource={activities}
                 className={styles.activitiesList}
                 size="large"
@@ -245,7 +229,7 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
             >
               <div className={styles.members}>
                 <Row gutter={48}>
-                  {projectNotice.map(item => (
+                  {projectNotice.map((item) => (
                     <Col span={12} key={`members-item-${item.id}`}>
                       <Link to={item.href}>
                         <Avatar src={item.logo} size="small" />
@@ -263,4 +247,24 @@ class PAGE_NAME_UPPER_CAMEL_CASE extends Component<PAGE_NAME_UPPER_CAMEL_CASEPro
   }
 }
 
-export default PAGE_NAME_UPPER_CAMEL_CASE;
+export default connect(
+  ({
+    BLOCK_NAME_CAMEL_CASE: { currentUser, projectNotice, activities, radarData },
+    loading,
+  }: {
+    BLOCK_NAME_CAMEL_CASE: ModalState;
+    loading: {
+      effects: {
+        [key: string]: boolean;
+      };
+    };
+  }) => ({
+    currentUser,
+    projectNotice,
+    activities,
+    radarData,
+    currentUserLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchUserCurrent'],
+    projectLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchProjectNotice'],
+    activitiesLoading: loading.effects['BLOCK_NAME_CAMEL_CASE/fetchActivitiesList'],
+  }),
+)(PAGE_NAME_UPPER_CAMEL_CASE);
