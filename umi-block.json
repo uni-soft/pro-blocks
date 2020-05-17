@@ -32,6 +32,22 @@
       "previewUrl": "https://preview.pro.ant.design/account/center"
     },
     {
+      "name": "个人中心2",
+      "key": "AccountCenter2",
+      "description": "个人中心一般用于暂时用户的基本信息，已经相关的信息展示。",
+      "url": "https://github.com/ant-design/pro-blocks/tree/master/AccountCenter",
+      "path": "AccountCenter2",
+      "features": [
+        "antd",
+        "dva"
+      ],
+      "img": "https://raw.githubusercontent.com/ant-design/pro-blocks/master/AccountCenter/snapshot.png?raw=true",
+      "tags": [
+        "个人中心"
+      ],
+      "previewUrl": "https://preview.pro.ant.design/account/center"
+    },
+    {
       "name": "个人设置",
       "key": "AccountSettings",
       "description": "通常是用于用户设置名称、头像、用途、私密性等信息。",
